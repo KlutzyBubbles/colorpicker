@@ -20,7 +20,7 @@ import java.util.ArrayList;
 
 public class ColorViewAdapter extends RecyclerView.Adapter<ColorViewAdapter.ViewHolder> {
 
-    private ColorPicker.OnFastChooseColorListener onFastChooseColorListener;
+    private ColorPicker.OnChooseColorListener onChooseColorListener;
     private ArrayList<ColorPal> mDataset;
     private int colorPosition = -1;
     private int colorSelected;
@@ -33,9 +33,10 @@ public class ColorViewAdapter extends RecyclerView.Adapter<ColorViewAdapter.View
 
 
     public class ViewHolder extends RecyclerView.ViewHolder implements OnClickListener {
-        public Button colorItem;
 
-        public ViewHolder(View v) {
+        private Button colorItem;
+
+        private ViewHolder(View v) {
             super(v);
             //buttons settings
             colorItem = v.findViewById(R.id.color);
@@ -66,8 +67,8 @@ public class ColorViewAdapter extends RecyclerView.Adapter<ColorViewAdapter.View
             mDataset.get(getLayoutPosition()).setCheck(true);
             notifyItemChanged(colorPosition);
 
-            if (onFastChooseColorListener != null && mDialog != null) {
-                onFastChooseColorListener.setOnFastChooseColorListener(colorPosition, colorSelected);
+            if (onChooseColorListener != null && mDialog != null) {
+                onChooseColorListener.onChooseColor(colorPosition, colorSelected);
                 dismissDialog();
             }
         }
@@ -90,13 +91,13 @@ public class ColorViewAdapter extends RecyclerView.Adapter<ColorViewAdapter.View
         return colorPosition;
     }
 
-    public ColorViewAdapter(ArrayList<ColorPal> myDataset, ColorPicker.OnFastChooseColorListener onFastChooseColorListener, WeakReference<CustomDialog> dialog) {
+    ColorViewAdapter(ArrayList<ColorPal> myDataset, ColorPicker.OnChooseColorListener onChooseColorListener, WeakReference<CustomDialog> dialog) {
         mDataset = myDataset;
         mDialog = dialog;
-        this.onFastChooseColorListener = onFastChooseColorListener;
+        this.onChooseColorListener = onChooseColorListener;
     }
 
-    public ColorViewAdapter(ArrayList<ColorPal> myDataset) {
+    ColorViewAdapter(ArrayList<ColorPal> myDataset) {
         mDataset = myDataset;
     }
 
