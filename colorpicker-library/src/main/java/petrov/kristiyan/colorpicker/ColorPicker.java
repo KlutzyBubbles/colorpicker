@@ -27,16 +27,9 @@ import static petrov.kristiyan.colorpicker.ColorUtils.getDimensionDp;
 public class ColorPicker {
 
     private OnChooseColorListener onChooseColorListener;
-    private OnFastChooseColorListener onFastChooseColorListener;
 
     public interface OnChooseColorListener {
         void onChooseColor(int position, int color);
-
-        void onCancel();
-    }
-
-    public interface OnFastChooseColorListener {
-        void setOnFastChooseColorListener(int position, int color);
 
         void onCancel();
     }
@@ -75,6 +68,10 @@ public class ColorPicker {
      * Constructor
      */
     public ColorPicker(Activity context) {
+        this(context, false);
+    }
+
+    public ColorPicker(Activity context, boolean fastChooser) {
         dialogViewLayout = LayoutInflater.from(context).inflate(R.layout.color_palette_layout, null, false);
         colorpicker_base = dialogViewLayout.findViewById(R.id.colorpicker_base);
         recyclerView = dialogViewLayout.findViewById(R.id.color_palette);
@@ -90,6 +87,18 @@ public class ColorPicker {
         this.positiveText = context.getString(R.string.colorpicker_dialog_ok);
         this.default_color = 0;
         this.columns = 5;
+        this.fastChooser = fastChooser;
+    }
+
+    /**
+     * Sets whether or not the dialog should be a fast chooser
+     *
+     * @param fastChooser Boolean value
+     * @return this
+     */
+    public ColorPicker setFastChooser(boolean fastChooser) {
+        this.fastChooser = fastChooser;
+        return this;
     }
 
     /**
@@ -179,7 +188,7 @@ public class ColorPicker {
         GridLayoutManager gridLayoutManager = new GridLayoutManager(context, columns);
         recyclerView.setLayoutManager(gridLayoutManager);
         if (fastChooser)
-            colorViewAdapter = new ColorViewAdapter(colors, onFastChooseColorListener, mDialog);
+            colorViewAdapter = new ColorViewAdapter(colors, onChooseColorListener, mDialog);
         else
             colorViewAdapter = new ColorViewAdapter(colors);
 
@@ -232,8 +241,8 @@ public class ColorPicker {
                     onChooseColorListener.onChooseColor(colorViewAdapter.getColorPosition(), colorViewAdapter.getColorSelected());
                 if (dismiss) {
                     dismissDialog();
-                    if (onFastChooseColorListener != null) {
-                        onFastChooseColorListener.onCancel();
+                    if (onChooseColorListener != null && fastChooser) {
+                        onChooseColorListener.onCancel();
                     }
                 }
             }
@@ -353,26 +362,13 @@ public class ColorPicker {
     }
 
     /**
-     * set a fast listener ( it shows a mDialog without buttons and the event fires as soon you select a color )
-     *
-     * @param listener OnFastChooseColorListener
-     * @return this
-     */
-    public ColorPicker setOnFastChooseColorListener(OnFastChooseColorListener listener) {
-        this.fastChooser = true;
-        buttons_layout.setVisibility(View.GONE);
-        this.onFastChooseColorListener = listener;
-        dismissDialog();
-        return this;
-    }
-
-    /**
      * set a listener for the color picked
      *
      * @param listener OnChooseColorListener
      */
     public ColorPicker setOnChooseColorListener(OnChooseColorListener listener) {
         onChooseColorListener = listener;
+        this.dismissDialog();
         return this;
     }
 
